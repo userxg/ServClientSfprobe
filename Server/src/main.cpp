@@ -5,19 +5,29 @@
 #include <windows.h>
 #include <thread>
 #include <chrono>
+#include <vector>
 
 int clients_cnt = 0;
+//create array for clients
+
+struct Client
+{
+public:
+    int id;
+    sf::TcpSocket socket;
+};
+
+std::vector<Client*> clients;
+
 
 void Acceptor(sf::TcpListener& listener)
 {
 
-    //create array for clients
     while (true)
     {
         //here we accept clients
-        sf::TcpSocket for_client;
-        for_client.setBlocking(false);
-        sf::Socket::Status accept_status = listener.accept(for_client);
+        Client* some_client = new Client();
+        sf::Socket::Status accept_status = listener.accept(some_client->socket);
 
 
 
@@ -26,21 +36,36 @@ void Acceptor(sf::TcpListener& listener)
             std::cout << "Error!\n";
         }
 
-        
-        std::cout << ++clients_cnt << " Connection!\n";
+        clients.push_back(some_client);
+        some_client->id = clients.size();
+
+        std::cout << some_client->id << " Connection!\n";
     }
 }
 
 void SomeChatting()
 {
+
     while (true)
     {
-        std::cout << "some chatting\n";
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        if (clients.size() == 1)
+        {
+            char data[100] = { 0 };
+            std::size_t received;
+
+            sf::Socket::Status recived_status = clients[0]->socket.receive(data, 100, received);
+
+            if (recived_status != sf::Socket::Done)
+            {
+                std::cout << "Error received\n";
+            }
+
+            std::cout << "Received: " << received << " bytes" << std::endl;
+            std::cout << "message: " << data << "\n";
+        }
     }
 }
 
-void func(int& x) {};
 
 int main()
 {
@@ -67,14 +92,14 @@ int main()
         std::cout << "Error!\n";
     }
 
-    Acceptor(listener);
+    //Acceptor(listener);
 
 
-    //td::thread accept_clients(Acceptor, std::ref(listener));
+    std::thread accept_clients(Acceptor, std::ref(listener));
     std::thread chatting(SomeChatting);
 
 
-    //accept_clients.join();
+    accept_clients.join();
     chatting.join();
     
 

@@ -27,7 +27,23 @@ int main()
         std::cout << "Error!\n";
     }
 
-    std::cout << "I'm connected\n";
+    std::cout << "I'm connected\n\n";
+
+    //send and recieve data
+    while (true)
+    {
+        std::string msg;
+        std::getline(std::cin, msg);
+
+        sf::Socket::Status send_status = cl_socket.send(msg.data(), 100);
+
+        if(send_status != sf::Socket::Done)
+        {
+            std::cout << "Send error\n";
+        }
+
+        std::cout << "send by me: " << msg << "\n";
+    }
 
     system("pause");
 
