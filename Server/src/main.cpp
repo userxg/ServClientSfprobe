@@ -13,9 +13,29 @@ int clients_cnt = 0;
 struct Client
 {
 public:
-    int id;
+    sf::Int8 id;
     sf::TcpSocket socket;
 };
+
+struct Message
+{
+    std::string name_from;
+    std::string name_to;
+
+    std::string message;
+};
+
+sf::Packet& operator<<(sf::Packet& inp, const Message& msg)
+{
+    inp << msg.name_from << msg.name_to << msg.message;
+    return inp;
+}
+
+sf::Packet& operator>>(sf::Packet& out, Message& msg)
+{
+    out >> msg.name_from >> msg.name_to >> msg.message;
+    return out;
+}
 
 std::vector<Client*> clients;
 
@@ -50,18 +70,18 @@ void SomeChatting()
     {
         if (clients.size() == 1)
         {
-            char data[100] = { 0 };
-            std::size_t received;
+            sf::Packet packet_from;
+            Message msg_from;
+            sf::Socket::Status recived_status = clients[0]->socket.receive(packet_from);
 
-            sf::Socket::Status recived_status = clients[0]->socket.receive(data, 100, received);
-
+            packet_from >> msg_from;
             if (recived_status != sf::Socket::Done)
             {
                 std::cout << "Error received\n";
             }
 
-            std::cout << "Received: " << received << " bytes" << std::endl;
-            std::cout << "message: " << data << "\n";
+            std::cout << "Received from: " << msg_from.name_from << "\n";
+            std::cout << "message: " << msg_from.message << "\n";
         }
     }
 }

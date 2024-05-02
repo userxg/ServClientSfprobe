@@ -5,6 +5,25 @@
 #include <windows.h>
 
 
+struct Message
+{
+    std::string name_from;
+    std::string name_to;
+
+    std::string message;
+};
+
+sf::Packet& operator<<(sf::Packet& inp, const Message& msg)
+{
+    inp << msg.name_from << msg.name_to << msg.message;
+    return inp;
+}
+
+sf::Packet& operator>>(sf::Packet& out, Message& msg)
+{
+    out >> msg.name_from >> msg.name_to >> msg.message;
+    return out;
+}
 
 int main()
 {
@@ -29,20 +48,25 @@ int main()
 
     std::cout << "I'm connected\n\n";
 
+    std::string my_name = "Nikola";
     //send and recieve data
     while (true)
     {
-        std::string msg;
-        std::getline(std::cin, msg);
+        Message msg;
+        msg.name_from = my_name;
+        std::getline(std::cin, msg.message);
+        sf::Packet packet;
+        packet << msg;
+        
 
-        sf::Socket::Status send_status = cl_socket.send(msg.data(), 100);
+        sf::Socket::Status send_status = cl_socket.send(packet);
 
         if(send_status != sf::Socket::Done)
         {
             std::cout << "Send error\n";
         }
 
-        std::cout << "send by me: " << msg << "\n";
+        std::cout << "send by me: " << msg.message << "\n";
     }
 
     system("pause");
