@@ -14,44 +14,32 @@
 
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
-	//if frame has one child, this child fill all space
-	wxPanel* panel = new wxPanel(this);
 	
-	wxButton* button_1 = new wxButton(panel, wxID_ANY, "Button 1", wxPoint(300, 275), wxSize(200, 50));
-	wxButton* button_2 = new wxButton(panel, wxID_ANY, "Button 2", wxPoint(300, 350), wxSize(200, 50));
+	wxPanel* panel = new wxPanel(this);
+	wxButton* button = new wxButton(panel, wxID_ANY, "Button", wxPoint(300, 250), wxSize(200, 100));
 
-	//propogation goes up until reach handler,  childs emit event up to final parent who has handle
-	this->Bind(wxEVT_BUTTON, &MainFrame::OnAnyButtonClicked, this);
-	this->Bind(wxEVT_CLOSE_WINDOW, &MainFrame::OnClose, this);
+	//fix flickering
+	wxStatusBar* statusBar = CreateStatusBar();
+	statusBar->SetDoubleBuffered(true);
 
-	button_1->Bind(wxEVT_BUTTON, &MainFrame::OnButton1Clicked, this);
-	button_2->Bind(wxEVT_BUTTON, &MainFrame::OnButton2Clicked, this);
-	CreateStatusBar();
+	//mouse movement
+	panel->Bind(wxEVT_MOTION, &MainFrame::OnMouseEvent, this);
+	button->Bind(wxEVT_MOTION, &MainFrame::OnMouseEvent, this);
+	
+	
 }
 
-void MainFrame::OnAnyButtonClicked(wxCommandEvent& evt)
+							//contains info about event, including position
+							//it's not a command event it doens't have propogation
+void MainFrame::OnMouseEvent(wxMouseEvent& evt)
 {
-	wxLogMessage("Button Clicked");
+	//wxPoint mousePos = evt.GetPosition();//relative to client
+	wxPoint mousePos = wxGetMousePosition();//relative to screen
+	mousePos = this->ScreenToClient(mousePos);//relative to obj
+	wxString message = wxString::Format("Mouse position: (x=%d y=%d)", mousePos.x, mousePos.y);
+	wxLogStatus(message);
 }
 
-void MainFrame::OnButton1Clicked(wxCommandEvent& evt)
-{
-	wxLogStatus("Button 1 Clicked");
-	//propogation should continue going up 
-	evt.Skip();
-}
 
-void MainFrame::OnButton2Clicked(wxCommandEvent& evt)
-{
-	wxLogStatus("Button 2 Clicked");
-
-	evt.Skip();
-}
-
-void MainFrame::OnClose(wxCloseEvent& evt)
-{
-	wxLogMessage("Frome Closed");
-	evt.Skip();
-}
 
  

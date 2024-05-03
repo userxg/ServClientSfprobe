@@ -10,13 +10,8 @@ public:
 	MainFrame(const wxString& title);
 
 private:
-					//info aboutu event
-	void OnAnyButtonClicked(wxCommandEvent& evt);
-
-	void OnButton1Clicked(wxCommandEvent& evt);
-	void OnButton2Clicked(wxCommandEvent& evt);
 	
-	void OnClose(wxCloseEvent& evt);
+	void OnMouseEvent(wxMouseEvent& evt);
 	
 };
 
