@@ -15,30 +15,49 @@
 MainFrame::MainFrame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
 	
-	wxPanel* panel = new wxPanel(this);
-	wxButton* button = new wxButton(panel, wxID_ANY, "Button", wxPoint(300, 250), wxSize(200, 100));
-
-	//fix flickering
-	wxStatusBar* statusBar = CreateStatusBar();
-	statusBar->SetDoubleBuffered(true);
-
-	//mouse movement
-	panel->Bind(wxEVT_MOTION, &MainFrame::OnMouseEvent, this);
-	button->Bind(wxEVT_MOTION, &MainFrame::OnMouseEvent, this);
+	wxPanel* panel = new wxPanel(this, wxID_ANY, wxDefaultPosition, wxDefaultSize, wxWANTS_CHARS);															
+	wxButton* btn2 = new wxButton(panel, wxID_ANY, "Button 2", wxPoint(300, 350), wxSize(200, 100));
 	
+	panel->Bind(wxEVT_CHAR_HOOK, &MainFrame::OnKeyEvent, this);
+	//panel->Bind(wxEVT_KEY_UP, &MainFrame::OnKeyEvent, this);
+
+	//for upper down keys
+	//panel->Bind(wxEVT_CHAR, &MainFrame::OnKeyEvent, this);
 	
+	CreateStatusBar();
 }
 
-							//contains info about event, including position
-							//it's not a command event it doens't have propogation
-void MainFrame::OnMouseEvent(wxMouseEvent& evt)
+						//contains 2 methods to get key
+void MainFrame::OnKeyEvent(wxKeyEvent& evt)
 {
-	//wxPoint mousePos = evt.GetPosition();//relative to client
-	wxPoint mousePos = wxGetMousePosition();//relative to screen
-	mousePos = this->ScreenToClient(mousePos);//relative to obj
-	wxString message = wxString::Format("Mouse position: (x=%d y=%d)", mousePos.x, mousePos.y);
-	wxLogStatus(message);
+	if (evt.GetKeyCode() == WXK_TAB)
+	{
+		wxWindow* window = (wxWindow*)evt.GetEventObject();
+		window->Navigate();
+	}
+	//if (evt.GetUnicodeKey() == 'A')
+	//	wxLogStatus("A was pressed!");
+	//else if (evt.GetUnicodeKey() == '\n')
+	//	wxLogStatus("enter was pressed!");
+
+	//return;
+	////it returns wxK_NONE if key is not in unicode
+	//wxChar key_char = evt.GetUnicodeKey();
+
+	wxLogStatus("key event");
+	evt.Skip();
+
+	/*if (key_char == wxKEY_NONE)
+	{
+		int key_code = evt.GetKeyCode();
+		wxLogStatus("key event special: %d", key_code);
+	}
+	else
+	{
+		wxLogStatus("key event: %c", key_char);
+	}*/
 }
+
 
 
 

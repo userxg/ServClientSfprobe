@@ -11,7 +11,7 @@ public:
 
 private:
 	
-	void OnMouseEvent(wxMouseEvent& evt);
+	void OnKeyEvent(wxKeyEvent& evt);
 	
 };
 
