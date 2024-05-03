@@ -15,7 +15,7 @@ bool Application::OnInit()
 {
     MainFrame* mainFrame = new MainFrame("C++ GUI");
 
-    mainFrame->SetClientSize(500, 500);
+    mainFrame->SetClientSize(700, 700);
     mainFrame->Center();
 
     mainFrame->Show();
